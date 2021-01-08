@@ -1,0 +1,5 @@
+/node_modules
+/src/config.ts
+/src/config.ts.prod
+/src/config.ts.test
+/dist
