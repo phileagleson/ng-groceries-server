@@ -46,7 +46,7 @@ export const areaTypeDefs = gql`
     updateArea(areaId: ID!, name: String, imageUpload: Upload): Area
     deleteArea(areaId: ID!): Area
     createGroceryList: GroceryList!
-    addItemToGroceryList(groceryId: ID!, itemId: ID!): GroceryList!
+    addItemToGroceryList(groceryId: ID!, itemId: ID, name: String): GroceryList!
     resetGroceryList(groceryId: ID!): GroceryList!
     sortGroceryList(groceryId: ID!, sortedItems: [ItemInput]): GroceryList!
   }

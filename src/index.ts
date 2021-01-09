@@ -14,7 +14,6 @@ export interface IRequest extends Request {
 
 const startServer = async () => {
   const app: Application = express()
-
   const server: ApolloServer = new ApolloServer({
     typeDefs,
     resolvers,

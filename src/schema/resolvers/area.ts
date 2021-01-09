@@ -141,28 +141,28 @@ const areaResolver = {
         throw new Error('Area not found')
       }
 
-      // see if item existsa at all
-      const item = await Item.findOne({ name })
+      // see if item exists at all
+      const item = await Item.findOne({ name: name.toLowerCase() })
 
       if (item) {
         // see if item exists
         let found = false
         area.items.forEach((i: ItemType) => {
-          if (i._id === item._id) {
+          if (i._id.toString() === item._id.toString()) {
             found = true
           }
         })
         if (found) {
           throw new Error('Item already exists in ' + area.name)
+        } else {
+          area.items.push(item)
+          area.save()
+          return item
         }
-
-        area.items.push(item)
-        area.save()
-        return item
       }
 
       const newItem = await new Item({
-        name,
+        name: name.toLowerCase(),
       }).save()
 
       area.items.push(newItem)
@@ -183,13 +183,13 @@ const areaResolver = {
         throw new Error('Item not found')
       }
 
-      item.name = name
+      item.name = name.toLowerCase()
       await item.save()
       return item
     },
     addItemToGroceryList: async (
       _: ParentNode,
-      { groceryId, itemId }: IArgType,
+      { groceryId, itemId, name }: IArgType,
       { user }: IContext
     ): Promise<GroceryListType> => {
       if (!user) {
@@ -198,8 +198,28 @@ const areaResolver = {
       const groceryList = await GroceryList.findById(groceryId).populate(
         'items'
       )
-      const item = await Item.findById(itemId)
-      groceryList.items.push(item)
+      let item = await Item.findById(itemId)
+      if (item) {
+        groceryList.items.push(item)
+      } else {
+        // see if item anme exists
+        if (name) {
+          item = await Item.findOne({ name: name.toLowerCase() })
+        }
+
+        // chedk for item again
+        if (item) {
+          groceryList.items.push(item)
+        } else {
+          // item does not exist in db, create new item
+          item = new Item({
+            name: name.toLowerCase(),
+          })
+
+          await item.save()
+          groceryList.items.push(item)
+        }
+      }
       await groceryList.save()
 
       return groceryList.toObject() as GroceryListType
